@@ -1,4 +1,4 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.sun.java.swing.plaf.motif.MotifTreeUI;
@@ -9,9 +9,9 @@ import com.sun.java.swing.plaf.motif.MotifTreeUI;
 
 public class Virus extends MoveableCreature {
 
-    Virus(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, DIRECTION dir)
+    Virus(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, DIRECTION dir, ENTITYTYPE iType)
     {
-        super(iModel, iAnimation, iSpeed, iPosition, iSize, dir);
+        super(iModel, iAnimation, iSpeed, iPosition, iSize, dir, iType);
     }
 
 

@@ -1,4 +1,4 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;

@@ -1,4 +1,4 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 /**
  * Created by Lorence on 6/28/2017.

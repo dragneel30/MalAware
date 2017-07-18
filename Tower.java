@@ -1,6 +1,7 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
@@ -10,26 +11,39 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.List;
 import java.util.ArrayList;
 public class Tower extends Creature {
-    Tower(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, Bullet iBullet)
+    Tower(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, Bullet iBullet, ENTITYTYPE iType)
     {
-        super(iModel, iAnimation, iSpeed, iPosition, iSize);
+        super(iModel, iAnimation, iSpeed, iPosition, iSize, iType);
         bullets = new ArrayList<Bullet>();
         bullet = iBullet;
+        reload();
     }
 
-    float accumulated_delta = 0.0f;
+    Tower(Tower other)
+    {
+        super(other.getModel(), other.getAnimation(), other.getSpeed(), new Vector2(other.getSprite().getX(), other.getSprite().getY()),
+                new Vector2(other.getSprite().getWidth(), other.getSprite().getHeight()), other.getType());
+        bullets = new ArrayList<Bullet>();
+        bullet = other.getBullet();
+    }
+    float accumulated_delta;
 
+    boolean isReadyToFire()
+    {
+        return getAccumulated_delta() >= getSpeed();
+    }
+    void reload() { accumulated_delta = 0.0f; }
+    float getAccumulated_delta() { return accumulated_delta; }
+    Bullet getBullet()
+    {
+        return bullet;
+    }
     void update(float delta)
     {
 
         for ( int a = 0; a < bullets.size(); a++ )
             bullets.get(a).update(delta);
         accumulated_delta += delta;
-        if ( accumulated_delta >= 1.0f )
-        {
-            accumulated_delta = 0.0f;
-                fire();
-        }
 
     }
 
@@ -44,7 +58,9 @@ public class Tower extends Creature {
     }
     void fire()
     {
-        bullets.add(new Bullet(bullet));
+        Bullet newBullet = new Bullet(bullet);
+        newBullet.getSprite().setPosition(getSprite().getX(), getSprite().getY());
+        bullets.add(newBullet);
 
     }
 
@@ -53,6 +69,14 @@ public class Tower extends Creature {
         return bullets;
     }
 
+    void setBullet(Bullet newBullet)
+    {
+        bullet = newBullet;
+    }
+
     Bullet bullet;
     List<Bullet> bullets;
+
+
+
 }

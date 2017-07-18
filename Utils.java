@@ -1,8 +1,9 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.Gson;
@@ -49,7 +50,7 @@ public class Utils {
 
     }
 
-    public static boolean has2DCollition(Rectangle obj1, Rectangle obj2)
+    public static boolean has2DCollision(Rectangle obj1, Rectangle obj2)
     {
         return ( obj1.getX() <= obj2.getX() + obj2.getWidth() &&
                 obj1.getX() <= obj2.getY() + obj2.getWidth() &&
@@ -57,12 +58,18 @@ public class Utils {
                 obj1.getY() + obj1.getHeight() >= obj2.getY() );
     }
 
+    public static boolean has2DCollision(Sprite obj1, Sprite obj2)
+    {
+        return has2DCollision(obj1.getBoundingRectangle(), obj2.getBoundingRectangle());
+    }
+    public static boolean isAligned(float y1, float y2)
+    {
+        return y1 == y2;
+    }
     public static boolean has2DPositionCollision(Vector2 obj1, Vector2 obj2)
     {
         return obj1 == obj2;
     }
-
-
 
     public static boolean isObjectNull(Object o)
     {

@@ -1,4 +1,4 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -11,9 +11,9 @@ import java.util.List;
 
 public class MoveableCreature extends Creature {
 
-    MoveableCreature(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, DIRECTION iDir)
+    MoveableCreature(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, DIRECTION iDir, ENTITYTYPE iType)
     {
-        super(iModel, iAnimation, iSpeed, iPosition, iSize);
+        super(iModel, iAnimation, iSpeed, iPosition, iSize, iType);
         dir = iDir;
 
         vectorDirections = new ArrayList<Vector2>();

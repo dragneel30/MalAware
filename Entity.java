@@ -1,4 +1,4 @@
-package com.malaware.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,25 +11,60 @@ import com.badlogic.gdx.math.Vector2;
  * Created by Lorence on 6/28/2017.
  */
 
+enum ENTITYTYPE
+{
+
+    TOWER(0), VIRUS(1), BULLET(2);
+    private int value;
+    int getValue() { return value; }
+    ENTITYTYPE(int i)
+    {
+        value = i;
+    }
+}
 public abstract class Entity implements Drawable {
 
-    Entity(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize)
-    {
-        speed = iSpeed;
-        model = iModel;
 
+    private boolean visible;
+    boolean isVisible()
+    {
+        return visible;
+    }
+    void setVisible(boolean newVisible)
+    {
+        visible = newVisible;
+    }
+    float getAlignment()
+    {
+        return getSprite().getY();
+    }
+    ENTITYTYPE type;
+    ENTITYTYPE getType() { return type; }
+    Entity(EntityModel iModel, Animation iAnimation, double iSpeed, Vector2 iPosition, Vector2 iSize, ENTITYTYPE iType)
+    {
+        visible = true;
+        type = iType;
+        speed = iSpeed;
+
+
+
+        if ( setModel(iModel) )
+        {
+            sprite.setPosition(iPosition.x, iPosition.y);
+            sprite.setSize(iSize.x, iSize.y);
+        }
 
         setAnimation(iAnimation);
-        sprite = new Sprite(iModel.getTexture());
-        sprite.setPosition(iPosition.x, iPosition.y);
-        sprite.setSize(iSize.x, iSize.y);
-        if ( !Utils.isObjectNull(getAnimation()) ) {
-            animation = new Animation(iAnimation);
+
+        if ( !Utils.isObjectNull(iAnimation) ) {
             animate();
         }
 
-        else animation = null;
 
+    }
+    Vector2 getPostiion()
+    {
+        return new Vector2(getSprite().getX(), getSprite().getY());
     }
 
     protected double speed;
@@ -37,9 +72,7 @@ public abstract class Entity implements Drawable {
     double getSpeed() { return speed; }
     void setAnimation(Animation newAnimation)
     {
-
         animation = newAnimation;
-
     }
 
     public void draw(SpriteBatch batch)
@@ -58,6 +91,17 @@ public abstract class Entity implements Drawable {
 
     Animation getAnimation() { return animation; }
     EntityModel getModel() { return model;}
+    boolean setModel(EntityModel newModel)
+    {
+        model = newModel;
+        if ( !Utils.isObjectNull(newModel) )
+        {
+            sprite = new Sprite(newModel.getTexture());
+            sprite.setSize(1, 1);
+            return true;
+        }
+        return false;
+    }
     protected EntityModel model;
     protected Animation animation;
     protected Sprite sprite;
