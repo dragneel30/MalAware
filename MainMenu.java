@@ -14,7 +14,7 @@ public class MainMenu implements Drawable {
 
     MainMenu()
     {
-        sprite = new Sprite(new Texture(Gdx.files.internal("graphics/textures/Splash.png")));
+        sprite = new Sprite((Texture) ResourceManager.getObjectFromResource("splash"));
         sprite.setSize(GAME_GLOBALS.GAME_CAMERA_WIDTH, GAME_GLOBALS.GAME_CAMERA_HEIGHT);
         adjustOpacity(0);
         isFadingout = false;

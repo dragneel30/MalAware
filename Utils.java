@@ -2,14 +2,19 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 
 /**
@@ -18,6 +23,10 @@ import java.io.Reader;
 import java.util.Random;
 public class Utils {
 
+    static FileHandle getFile(String path)
+    {
+        return Gdx.files.internal(path);
+    }
     private static Random r = new Random();
     static int getRand(int highest)
     {
@@ -53,7 +62,7 @@ public class Utils {
     public static boolean has2DCollision(Rectangle obj1, Rectangle obj2)
     {
         return ( obj1.getX() <= obj2.getX() + obj2.getWidth() &&
-                obj1.getX() <= obj2.getY() + obj2.getWidth() &&
+                obj1.getY() <= obj2.getY() + obj2.getHeight() &&
                 obj1.getX() + obj1.getWidth() >= obj2.getX() &&
                 obj1.getY() + obj1.getHeight() >= obj2.getY() );
     }
@@ -83,12 +92,40 @@ public class Utils {
         {
             Reader reader = new FileReader(file);
             Gson gson = new Gson();
+            Utils.makeLog(file);
             return gson.fromJson(reader, type);
         }
         catch(FileNotFoundException e)
         {
+            Utils.makeLog("cant do it");
             Utils.makeLog(e.getMessage());
         }
+        return null;
+    }
+
+    static <T> T deserialize(String file, Class<T> type)
+    {
+        return getFromJson(file, type);
+    }
+    static void serialize(Object object) {
+        Gson gson = new Gson();
+        String result = gson.toJson(object);
+        writeFile(result);
+    }
+    static void writeFile(String txt) {
+
+        try {
+            FileWriter f = new FileWriter(new File("savestate.txt"));
+            f.append(txt);
+            f.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    static Dialog createModal()
+    {
         return null;
     }
 

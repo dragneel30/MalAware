@@ -94,7 +94,91 @@ class Tile
 }
 
 
+class Factory
+{
+	static int get(String str)
+	{
+		return Integer.parseInt(str);
+	}
 
+	static AnimationModel createAnimationModelFromParsedJSON(AnimationInfo info)
+	{
+		AnimationModel model = new AnimationModel(info.animation_per_face, info.num_face);
+
+		for ( int a = 0; a < info.bounds.size(); a++ )
+		{
+			model.addBound(info.bounds.get(a));
+		}
+
+		return model;
+	}
+	static BitmapFont createdBitmapFrontFromFile(FileHandle file, int fontSize)
+	{
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(file);
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = fontSize;
+		BitmapFont font = generator.generateFont(parameter);
+		generator.dispose();
+		return font;
+	}
+	static World createWorldFromJSON(String filepath)
+	{
+		WorldInfo worldInfo = Utils.getFromJson(filepath, WorldInfo.class);
+		if ( worldInfo.tilesets.size() > 0 )
+		{
+			Tileset ref = worldInfo.tilesets.get(0);
+			Texture tileset = new Texture("graphics/textures/" + ref.file);
+
+			int spacing = get(ref.spacing);
+			int margin = get(ref.margin);
+
+			int width = get(ref.column);
+			int mapheight = get(worldInfo.row);
+			int mapwidth = get(worldInfo.column);
+			int tilewidth = get(ref.tile_width);
+			int tileheight = get(ref.tile_height);
+			List<Tile> worldTiles = new ArrayList<Tile>();
+			int x = 0, y = mapheight - 1;
+			int offsetx = 0;
+			int offsety = 0;
+			for (int a = 0; a < worldInfo.tileIds.size(); a++) {
+				int id = Integer.parseInt(worldInfo.tileIds.get(a));
+				int row = 0;
+				int column = id - 1;
+				if (id > width) {
+					row = id / width;
+					column = (id % width) - 1;
+				}
+				offsetx = margin + ( column * spacing );
+				offsety = margin + ( row * spacing );
+				TextureRegion textureTile = new TextureRegion(tileset, (column * tilewidth) + offsetx, (row * tileheight) + offsety, tilewidth, tileheight);
+				Sprite spriteTile = new Sprite(textureTile);
+				spriteTile.setSize(1, 1);
+				spriteTile.setPosition(x++, y);
+				Tile tile = new Tile(null);
+				tile.setSprite(spriteTile);
+				worldTiles.add(tile);
+				if (x >= mapwidth) {
+					x = 0;
+					y--;
+				}
+			}
+			return new World(worldTiles);
+		}
+		return null;
+	}
+	static World createWorldFromImageFile(String filepath, float width, float height)
+	{
+		Texture txture = new Texture(filepath);
+		Tile tile = new Tile(null);
+		Sprite sprite = new Sprite(txture);
+		sprite.setSize(width - 1, height);
+		tile.setSprite(sprite);
+		List<Tile> tiles = new ArrayList<Tile>();
+		tiles.add(tile);
+		return new World(tiles);
+	}
+}
 
 class AnimationInfo
 {
@@ -170,12 +254,12 @@ class WorldFactory
 
 	static World createWorldFromJSON(String filepath)
 	{
+
 		WorldInfo worldInfo = Utils.getFromJson(filepath, WorldInfo.class);
 		if ( worldInfo.tilesets.size() > 0 )
 		{
 			Tileset ref = worldInfo.tilesets.get(0);
-			Texture tileset = new Texture("graphics/textures/" + ref.file);
-
+			Texture tileset = (Texture) ResourceManager.getObjectFromResource("map1");
 			int spacing = get(ref.spacing);
 			int margin = get(ref.margin);
 
@@ -247,7 +331,8 @@ public class Core extends ApplicationAdapter {
 	MainMenu menu;
 	@Override
 	public void create () {
-		menu = new MainMenu();
+		ResourceManager.load();
+
 		batch = new SpriteBatch();
 		worldCam = new OrthographicCamera(GAME_GLOBALS.GAME_CAMERA_WIDTH, GAME_GLOBALS.ASPECT_RATIO);
 		worldCam.position.set(worldCam.viewportWidth / 2f, worldCam.viewportHeight / 2f, 0);
@@ -260,18 +345,22 @@ public class Core extends ApplicationAdapter {
 		skins = new Skin();
 
 		gameStates = new ArrayList<GameState>();
-		BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/textures/fonts/arial.ttf"), 32);
+		BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
 
+		Texture bullet = (Texture) ResourceManager.getObjectFromResource("bullet");
+		Texture testtower1 = (Texture) ResourceManager.getObjectFromResource("testtower1");
+		Texture testtower2 = (Texture) ResourceManager.getObjectFromResource("testtower2");
+		Texture testtower3 = (Texture) ResourceManager.getObjectFromResource("testtower3");
 		TextButton.TextButtonStyle style = new TextButton.TextButtonStyle(new SpriteDrawable(new Sprite(
-				new Texture("graphics/textures/defaultskin.png"))), null, null, font);
+				(Texture) ResourceManager.getObjectFromResource("button"))), null, null, font);
 		ImageTextButton.ImageTextButtonStyle style2 = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(new Sprite(
-				new Texture("graphics/textures/testtower1.png"))), null, null, font);
+				testtower1)), null, null, font);
 
 		ImageTextButton.ImageTextButtonStyle style3 = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(new Sprite(
-				new Texture("graphics/textures/testtower2.png"))), null, null, font);
+				testtower2)), null, null, font);
 
 		ImageTextButton.ImageTextButtonStyle style4 = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(new Sprite(
-				new Texture("graphics/textures/testtower3.png"))), null, null, font);
+				testtower3)), null, null, font);
 
 		skins.add("default1", style);
 		skins.add("default2", style2);
@@ -287,13 +376,12 @@ public class Core extends ApplicationAdapter {
 		AnimationInfo virus1AnimationInfo = Utils.getFromJson("jsons/animations/virus1.json", AnimationInfo.class);
 		AnimationModel virus1AnimationModel = AnimationFactory.createAnimationModelFromParsedJSON(virus1AnimationInfo);
 		sharedAnimationModels.add(virus1AnimationModel);
-
-		sharedModels.add(loadModel("graphics/textures/testtower1.png", "tower1"));
-		sharedModels.add(loadModel("graphics/textures/bullet.png", "tower1Bullet"));
-		sharedModels.add(loadModel("graphics/textures/testtower2.png", "tower2"));
-		sharedModels.add(loadModel("graphics/textures/bullet.png", "tower2Bullet"));
-		sharedModels.add(loadModel("graphics/textures/testtower3.png", "tower5"));
-		sharedModels.add(loadModel("graphics/textures/bullet.png", "tower5Bullet"));
+		sharedModels.add(createModel(testtower1, "tower1"));
+		sharedModels.add(createModel(bullet, "tower1Bullet"));
+		sharedModels.add(createModel(testtower2, "tower2"));
+		sharedModels.add(createModel(bullet, "tower2Bullet"));
+		sharedModels.add(createModel(testtower3, "tower5"));
+		sharedModels.add(createModel(bullet, "tower5Bullet"));
 
 
 		//sharedModels.add(loadModel("graphics/textures/virus1.png", "virus1"));
@@ -314,10 +402,10 @@ public class Core extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(multiplexer);
 		List<ShopUnit> shopUnits = new ArrayList<ShopUnit>();
 
-		Bullet bullet = new Bullet(getModel("bullet"), null, 50, new Vector2(), new Vector2(0.3f, 0.3f), DIRECTION.RIGHT, ENTITYTYPE.BULLET);
-		ShopUnit image1 = new ShopUnit("500", style2, new Tower(getModel("tower1"), null, 1.0f, new Vector2(), new Vector2(1, 1), bullet, ENTITYTYPE.TOWER));
-		ShopUnit image2 = new ShopUnit("500", style3, new Tower(getModel("tower2"), null, 1.0f, new Vector2(), new Vector2(1, 1), bullet, ENTITYTYPE.TOWER));
-		ShopUnit image3 = new ShopUnit("500", style4, new Tower(getModel("tower5"), null, 1.0f, new Vector2(), new Vector2(1, 1), bullet, ENTITYTYPE.TOWER));
+		Bullet bbullet = new Bullet(getModel("bullet"), null, 50, new Vector2(), new Vector2(0.3f, 0.3f), DIRECTION.RIGHT, ENTITYTYPE.BULLET);
+		ShopUnit image1 = new ShopUnit("500", style2, new Tower(getModel("tower1"), null, 1.0f, new Vector2(), new Vector2(1, 1), bbullet, ENTITYTYPE.TOWER));
+		ShopUnit image2 = new ShopUnit("500", style3, new Tower(getModel("tower2"), null, 1.0f, new Vector2(), new Vector2(1, 1), bbullet, ENTITYTYPE.TOWER));
+		ShopUnit image3 = new ShopUnit("500", style4, new Tower(getModel("tower5"), null, 1.0f, new Vector2(), new Vector2(1, 1), bbullet, ENTITYTYPE.TOWER));
 		image1.addListener(new ShopUnitClick(image1));
 		image2.addListener(new ShopUnitClick(image2));
 		image3.addListener(new ShopUnitClick(image3));
@@ -339,23 +427,15 @@ public class Core extends ApplicationAdapter {
 
 
 		entities = new ArrayList<Entity>();
-		Utils.makeLog(Integer.toString(sharedAnimationModels.size()));/*
-		entities.add(new Virus(getModel("virus1"), new Animation(virus1AnimationInfo.default_face, virus1AnimationInfo.default_animation, sharedAnimationModels.get(0)), 7, new Vector2(GAME_GLOBALS.GAME_CAMERA_WIDTH - 1, Utils.getRand(5)), new Vector2(1, 1), DIRECTION.LEFT, ENTITYTYPE.VIRUS));
-		entities.add(new Virus(getModel("virus1"), new Animation(virus1AnimationInfo.default_face, virus1AnimationInfo.default_animation, sharedAnimationModels.get(0)), 8, new Vector2(GAME_GLOBALS.GAME_CAMERA_WIDTH - 1, Utils.getRand(5)), new Vector2(1, 1), DIRECTION.LEFT, ENTITYTYPE.VIRUS));
-		entities.add(new Virus(getModel("virus1"), new Animation(virus1AnimationInfo.default_face, virus1AnimationInfo.default_animation, sharedAnimationModels.get(0)), 9, new Vector2(GAME_GLOBALS.GAME_CAMERA_WIDTH - 1, Utils.getRand(5)), new Vector2(1, 1), DIRECTION.LEFT, ENTITYTYPE.VIRUS));
-		entities.add(new Virus(getModel("virus1"), new Animation(virus1AnimationInfo.default_face, virus1AnimationInfo.default_animation, sharedAnimationModels.get(0)), 10, new Vector2(GAME_GLOBALS.GAME_CAMERA_WIDTH - 1, Utils.getRand(5)), new Vector2(1, 1), DIRECTION.LEFT, ENTITYTYPE.VIRUS));
-		entities.add(new Virus(getModel("virus1"), new Animation(virus1AnimationInfo.default_face, virus1AnimationInfo.default_animation, sharedAnimationModels.get(0)), 11, new Vector2(GAME_GLOBALS.GAME_CAMERA_WIDTH - 1, Utils.getRand(5)), new Vector2(1, 1), DIRECTION.LEFT, ENTITYTYPE.VIRUS));
-*/
-
-		gameStates.add(new SplashState());
+		gameStates.add(new MenuState(gameStates));
 	}
 	List<Entity> entities;
 
 
-	EntityModel loadModel(String path, String modelName)
+	EntityModel createModel(Texture texture, String modelName)
 	{
 		//no checking for now
-		EntityModel newModel = new EntityModel(new Texture(path), modelName);
+		EntityModel newModel = new EntityModel(texture, modelName);
 		return newModel;
 	}
 	EntityModel getModel(String modelToSearch)
@@ -367,7 +447,7 @@ public class Core extends ApplicationAdapter {
 				return sharedModels.get(a);
 			}
 		}
-		return loadModel("graphics/textures/" + modelToSearch + ".png", modelToSearch);
+		return null;
 	}
 	public void update(float delta)
 	{
@@ -397,15 +477,17 @@ public class Core extends ApplicationAdapter {
 					for ( int b = 0; b < entities.size(); b++ )
 					{
 						Entity enemy = entities.get(b);
-						if ( enemy.getType() == ENTITYTYPE.VIRUS )
+						//Utils.makeLog(enemy.getAlignment() + " " + Float.toString(bullet.getAlignment()));
+						if ( enemy.getType() == ENTITYTYPE.VIRUS && Utils.isAligned(enemy.getAlignment(), bullet.getAlignment()) )
 						{
-							if ( Utils.isAligned(enemy.getAlignment(), bullet.getAlignment()) && Utils.has2DCollision(bullet.getSprite(), enemy.getSprite()))
+							if ( Utils.has2DCollision(bullet.getSprite(), enemy.getSprite()) )
 							{
 								entities.remove(enemy);
 								refbullets.remove(bullet);
 								a--;
 								break;
 							}
+
 						}
 					}
 				}
@@ -417,7 +499,7 @@ public class Core extends ApplicationAdapter {
 
 		if ( !Utils.isObjectNull(ShopUnitClick.getCurrentClickedUnit()) )
 		{
-			Utils.makeLog("1st");
+			//Utils.makeLog("1st");
 			if ( currentHoldingTower != ShopUnitClick.getCurrentClickedUnit().getUnit() )
 				currentHoldingTower = ShopUnitClick.getCurrentClickedUnit().getUnit();
 			worldUnitCoord = worldCam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
@@ -437,21 +519,23 @@ public class Core extends ApplicationAdapter {
 			}
 		}
 
+		for ( int a = 0; a < gameStates.size(); a++ )
+			if ( gameStates.get(a).isActiveState() )
+				gameStates.get(a).update(delta);
 	}
-	float accumulated_data = 0; //proposal key
+	float accumulated_data = 0;
 	@Override
 	public void render () {
 		float delta = Gdx.graphics.getDeltaTime();
 		update(delta);
-		gameStates.get(gameStates.size() - 1).update(delta);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(worldCam.combined);
-		SplashState splash = (SplashState) gameStates.get(gameStates.size() - 1);
-		if (!splash.isFinished())
+		if (true)
 		{
-			batch.begin();
-			gameStates.get(gameStates.size() - 1).draw(batch);
-			batch.end();
+			//Utils.makeLog(Integer.toString(gameStates.size()));
+			for ( int a = 0; a < gameStates.size(); a++ )
+				if ( gameStates.get(a).isActiveState() )
+					gameStates.get(a).draw(batch);
 		}
 		else {
 			accumulated_data += delta;

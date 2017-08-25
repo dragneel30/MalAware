@@ -21,7 +21,8 @@ public class Bullet extends MoveableCreature {
         super(other.getModel(), other.getAnimation(), other.getSpeed(),
                 new Vector2(other.getSprite().getX(), other.getSprite().getY()),
                 new Vector2(other.getSprite().getWidth(), other.getSprite().getHeight()), other.getDirection(), other.getType());
-
+        Utils.makeLog("bullet copy created");
+        Utils.makeLog(Float.toString(other.getAlignment()));
     }
 
    @Override
