@@ -26,6 +26,11 @@ class SaveList
         list = new ArrayList<SaveInfo>();
     }
     @SerializedName("saves") List<SaveInfo> list;
+
+    List<SaveInfo> getList()
+    {
+        return list;
+    }
     void add(SaveInfo newInfo)
     {
         list.add(newInfo);

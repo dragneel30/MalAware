@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -139,7 +140,6 @@ public abstract class GameState extends ClickListener {
     }
     GameState(java.util.List<GameState> iStates)
     {
-
         states = iStates;
         animation = new ScreenAnimation();
         selectedActor = null;
@@ -331,6 +331,8 @@ class LoadGameState extends GameState {
         }
         else if ( selectedActor == load )
         {
+            startAnimation();
+            setDisabled(true);
         }
     }
 
@@ -407,6 +409,7 @@ class LoadGameState extends GameState {
             }
             else if ( selectedActor == load )
             {
+                states.add(new PlayerProfileState(states));
             }
         }
         else super.update(delta);
@@ -437,21 +440,20 @@ class RegisterState extends GameState {
             BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
             Label.LabelStyle style = new Label.LabelStyle(font, Color.WHITE);
             SaveList lists = Utils.deserialize("savestate.txt", SaveList.class);
-            if ( !Utils.isObjectNull(lists) )
-            {
-                if ( lists.isExist(input.getText()) )
-                {
-                    resultDialog.setText(getDecidedName() + " already exist! try another name!");
-                }
-                else
-                {
-                    resultDialog.setText("Account created! press okay to continue");
-                    SaveList list = new SaveList();
-                    list.add(new SaveInfo(getDecidedName()));
-                    Utils.serialize(list);
-                }
-
+            if (Utils.isObjectNull(lists)) {
+                lists = new SaveList();
             }
+            if ( lists.isExist(input.getText()) )
+            {
+                resultDialog.setText(getDecidedName() + " already exist! try another name!");
+            }
+            else
+            {
+                resultDialog.setText("Account created! press okay to continue");
+                lists.add(new SaveInfo(getDecidedName()));
+                Utils.serialize(lists);
+            }
+
         }
         else if ( selectedActor == cancel )
         {
@@ -555,8 +557,71 @@ class PlayerProfileState extends GameState
     PlayerProfileState(java.util.List<GameState> iStates) {
         super(iStates);
 
-    }
+        Sprite buttonSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));
+        BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(buttonSprite), null, null, font);
 
+        playGame = new ImageTextButton("Play game", style);
+        almanac = new ImageTextButton("Almanac", style);
+        settings = new ImageTextButton("Settings", style);
+        quit = new ImageTextButton("Quit", style);
+
+        Label.LabelStyle lblStyle = new Label.LabelStyle(font, Color.WHITE);
+        money = new Label("insert money here", lblStyle);
+
+        int h = 32;
+        int buttonCount = 4;
+        float baseX = GAME_GLOBALS.DESKTOP_SCREEN_WIDTH/2, baseY = GAME_GLOBALS.DESKTOP_SCREEN_HEIGHT / 2;
+      /*  GlyphLayout layout = new GlyphLayout(font, playGame.getText());
+
+
+        playGame.setBounds(baseX - (layout.width/2), baseY + ((h * buttonCount)/2),layout.width, h);
+        layout.setText(font, almanac.getText());
+        almanac.setBounds(baseX - (layout.width/2), playGame.getY() - h, layout.width, h);
+        layout.setText(font, settings.getText());
+        settings.setBounds(baseX - (layout.width/2), almanac.getY() - h, layout.width, h);
+        layout.setText(font, quit.getText());
+        quit.setBounds(baseX - (layout.width/2), settings.getY() - h, layout.width, h);
+
+
+        layout.setText(font, money.getText());
+
+        stage.addActor(playGame);
+        stage.addActor(almanac);
+        stage.addActor(settings);
+        stage.addActor(quit);
+        stage.addActor(money);
+*/
+stage.setDebugAll(true);
+        Table root = new Table();
+        root.setFillParent(true);
+        Table table1 = new Table();
+        table1.setDebug(true);
+        table1.add(playGame);
+        table1.add(settings).width(200).left();
+        root.add(table1);
+        stage.addActor(root);
+
+    }
+    Label money;
+    @Override
+    public void clicked (InputEvent event, float x, float y) {
+        selectedActor = event.getListenerActor();
+        setDisabled(true);
+        startAnimation();
+        if ( selectedActor == playGame )
+        {
+        }
+        else if ( selectedActor == almanac )
+        {
+        }
+        else if ( selectedActor == settings )
+        {
+        }
+        else if ( selectedActor == quit )
+        {
+        }
+    }
     @Override
     void draw(SpriteBatch batch) {
         stage.draw();
@@ -567,7 +632,69 @@ class PlayerProfileState extends GameState
     {
         if ( animation.isScreenEnded() )
         {
+            if ( selectedActor == playGame )
+            {
 
+            }
+            else if ( selectedActor == almanac )
+            {
+
+            }
+            else if ( selectedActor == settings )
+            {
+
+            }
+            else if ( selectedActor == quit )
+            {
+
+            }
+        }
+        else super.update(delta);
+    }
+
+
+    ImageTextButton playGame;
+    ImageTextButton almanac;
+    ImageTextButton settings;
+    ImageTextButton quit;
+}
+
+
+class PlayerSettingState extends GameState
+{
+
+    PlayerSettingState(java.util.List<GameState> iStates) {
+        super(iStates);
+    }
+
+    @Override
+    public void clicked (InputEvent event, float x, float y) {
+        selectedActor = event.getListenerActor();
+
+
+    }
+    @Override
+    void draw(SpriteBatch batch) {
+        stage.draw();
+    }
+
+
+    @Override
+    void setDisabled(boolean disable)
+    {
+        if ( disable )
+        {
+        }
+        else
+        {
+        }
+    }
+
+    @Override
+    void update(float delta)
+    {
+        if ( animation.isScreenEnded() )
+        {
         }
         else super.update(delta);
     }
@@ -575,7 +702,45 @@ class PlayerProfileState extends GameState
 
 }
 
+class PlayerAlmanacState extends GameState
+{
+
+    PlayerAlmanacState(java.util.List<GameState> iStates) {
+        super(iStates);
+    }
+
+    @Override
+    public void clicked (InputEvent event, float x, float y) {
+        selectedActor = event.getListenerActor();
 
 
+    }
+    @Override
+    void draw(SpriteBatch batch) {
+        stage.draw();
+    }
 
+
+    @Override
+    void setDisabled(boolean disable)
+    {
+        if ( disable )
+        {
+        }
+        else
+        {
+        }
+    }
+
+    @Override
+    void update(float delta)
+    {
+        if ( animation.isScreenEnded() )
+        {
+        }
+        else super.update(delta);
+    }
+
+
+}
 

@@ -382,9 +382,9 @@ public class Core extends ApplicationAdapter {
 		sharedModels.add(createModel(bullet, "tower2Bullet"));
 		sharedModels.add(createModel(testtower3, "tower5"));
 		sharedModels.add(createModel(bullet, "tower5Bullet"));
+EntityModel model = new EntityModel((Texture)ResourceManager.getObjectFromResource("virus1"), "virus1");
 
-
-		//sharedModels.add(loadModel("graphics/textures/virus1.png", "virus1"));
+		sharedModels.add(model);
 
 		currentHoldingTower = new Tower(null, null, 0, null, null, null, ENTITYTYPE.TOWER);
 
@@ -427,7 +427,9 @@ public class Core extends ApplicationAdapter {
 
 
 		entities = new ArrayList<Entity>();
-		gameStates.add(new MenuState(gameStates));
+		//gameStates.add(new MenuState(gameStates));
+
+		gameStates.add(new PlayerProfileState(gameStates));
 	}
 	List<Entity> entities;
 
