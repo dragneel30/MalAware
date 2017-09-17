@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeType;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -26,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import java.awt.Image;
@@ -158,9 +161,11 @@ public abstract class GameState extends ClickListener {
         {
             animation.update(delta);
             stage.act(delta);
+            //Utils.makeLog("stage acted");
         }
         else
         {
+            stage.act(delta);
             setDisabled(false);
         }
     }
@@ -550,16 +555,15 @@ class RegisterState extends GameState {
 
     ModalDialog resultDialog;
 }
-
-class PlayerProfileState extends GameState
-{
+class PlayerProfileState extends GameState {
 
     PlayerProfileState(java.util.List<GameState> iStates) {
         super(iStates);
 
         Sprite buttonSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));
         BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
-        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(buttonSprite), null, null, font);
+        SpriteDrawable sprdraw = new SpriteDrawable(buttonSprite);
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(sprdraw, null, null, font);
 
         playGame = new ImageTextButton("Play game", style);
         almanac = new ImageTextButton("Almanac", style);
@@ -569,39 +573,21 @@ class PlayerProfileState extends GameState
         Label.LabelStyle lblStyle = new Label.LabelStyle(font, Color.WHITE);
         money = new Label("insert money here", lblStyle);
 
-        int h = 32;
-        int buttonCount = 4;
-        float baseX = GAME_GLOBALS.DESKTOP_SCREEN_WIDTH/2, baseY = GAME_GLOBALS.DESKTOP_SCREEN_HEIGHT / 2;
-      /*  GlyphLayout layout = new GlyphLayout(font, playGame.getText());
 
-
-        playGame.setBounds(baseX - (layout.width/2), baseY + ((h * buttonCount)/2),layout.width, h);
-        layout.setText(font, almanac.getText());
-        almanac.setBounds(baseX - (layout.width/2), playGame.getY() - h, layout.width, h);
-        layout.setText(font, settings.getText());
-        settings.setBounds(baseX - (layout.width/2), almanac.getY() - h, layout.width, h);
-        layout.setText(font, quit.getText());
-        quit.setBounds(baseX - (layout.width/2), settings.getY() - h, layout.width, h);
-
-
-        layout.setText(font, money.getText());
-
-        stage.addActor(playGame);
-        stage.addActor(almanac);
-        stage.addActor(settings);
-        stage.addActor(quit);
-        stage.addActor(money);
-*/
-stage.setDebugAll(true);
-        Table root = new Table();
-        root.setFillParent(true);
         Table table1 = new Table();
-        table1.setDebug(true);
-        table1.add(playGame);
-        table1.add(settings).width(200).left();
-        root.add(table1);
-        stage.addActor(root);
-
+        table1.setFillParent(true);
+        table1.top().left();
+        table1.add(money).expand().top().left().row();
+        table1.add(playGame).row();
+        table1.add(almanac).row();
+        table1.add(settings).row();
+        table1.add(quit).row();
+        table1.add().expand();
+        stage.addActor(table1);
+        playGame.addListener(this);
+        almanac.addListener(this);
+        settings.addListener(this);
+        quit.addListener(this);
     }
     Label money;
     @Override
@@ -611,15 +597,19 @@ stage.setDebugAll(true);
         startAnimation();
         if ( selectedActor == playGame )
         {
+            Utils.makeLog("plagegame");
         }
         else if ( selectedActor == almanac )
         {
+            Utils.makeLog("almanac");
         }
         else if ( selectedActor == settings )
         {
+            Utils.makeLog("settings");
         }
         else if ( selectedActor == quit )
         {
+            Utils.makeLog("clicked quit");
         }
     }
     @Override
@@ -638,15 +628,16 @@ stage.setDebugAll(true);
             }
             else if ( selectedActor == almanac )
             {
-
+                states.add(new PlayerAlmanacState(states));
             }
             else if ( selectedActor == settings )
             {
-
+                states.add(new PlayerSettingState(states));
             }
             else if ( selectedActor == quit )
             {
-
+                states.remove(states.size() - 1);
+                states.get(states.size() - 1).startAnimation();
             }
         }
         else super.update(delta);
@@ -658,10 +649,7 @@ stage.setDebugAll(true);
     ImageTextButton settings;
     ImageTextButton quit;
 }
-
-
-class PlayerSettingState extends GameState
-{
+class PlayerSettingState extends GameState {
 
     PlayerSettingState(java.util.List<GameState> iStates) {
         super(iStates);
@@ -701,14 +689,137 @@ class PlayerSettingState extends GameState
 
 
 }
+class PlayerAlmanacState extends GameState {
 
-class PlayerAlmanacState extends GameState
-{
-
-    PlayerAlmanacState(java.util.List<GameState> iStates) {
+    PlayerAlmanacState(java.util.List<GameState> iStates)
+    {
         super(iStates);
+        virusesAndDescriptions = new java.util.ArrayList<ImageText>();
+        Table inner = new Table();
+
+        Sprite buttonSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));
+
+        ScrollPane scrollPane = new ScrollPane(inner);
+        BitmapFont font = (BitmapFont) ResourceManager.getObjectFromResource("font");
+        Label.LabelStyle lblStyle = new Label.LabelStyle(font,Color.WHITE);
+
+        SpriteDrawable tableBackgroundWhenClicked = new SpriteDrawable(new Sprite((Texture) ResourceManager.getObjectFromResource("selectedItemBackgroundAlmanac")));
+        for ( int a = 0; a < 20; a++ )
+        {
+            ImageText virusAndDescription = new ImageText(new SpriteDrawable(buttonSprite),32, 32, "Virus" + Integer.toString(a+1), lblStyle, DIRECTION.RIGHT);
+            virusAndDescription.setBackgroundWhenClicked(tableBackgroundWhenClicked);
+            virusAndDescription.getTable().addListener(this);
+            inner.add(virusAndDescription.getTable()).fill();
+            inner.add(virusAndDescription.getFiller()).expandX().fill();
+            inner.row();
+
+            virusesAndDescriptions.add(virusAndDescription);
+        }
+
+        SpriteDrawable sprdraw = new SpriteDrawable(buttonSprite);
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(sprdraw, null, null, font);
+        back = new ImageTextButton("BACK", style);
+        inner.left();
+        Table root = new Table();
+        root.setFillParent(true);
+        root.add(scrollPane).expand().left().fill();
+        root.row();
+        root.add(back).expand().left().fill();
+
+        back.addListener(this);
+        stage.addActor(root);
+        Sprite listSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("splash"));
+        Skin dialogSkin = new Skin();
+        Window.WindowStyle windowStyle = new Window.WindowStyle(font, Color.WHITE,  new SpriteDrawable(listSprite) );
+        dialogSkin.add("splash", windowStyle);
+         dialog = new AlmanacDialog("Almanac", dialogSkin, "splash");
     }
 
+
+    ImageTextButton back;
+    java.util.List<ImageText> virusesAndDescriptions;
+    @Override
+    public void clicked (InputEvent event, float x, float y) {
+        selectedActor = event.getListenerActor();
+
+        if ( selectedActor == back ) {
+
+            setDisabled(false);
+            startAnimation();
+
+
+        }
+        else {
+            ImageText selected = null;
+            for (int a = 0; a < virusesAndDescriptions.size(); a++) {
+                ImageText curr = virusesAndDescriptions.get(a);
+                if (curr.getTable() == selectedActor) {
+                    curr.setSelected(true);
+                    selected = curr;
+                    continue;
+                } else if (virusesAndDescriptions.get(a).isSelected()) {
+                    curr.setSelected(false);
+                    if (!Utils.isObjectNull(selected))
+                        break;
+                }
+            }
+
+            AlmanacData data = new AlmanacData();
+            data.cause = "cause";
+            data.name = "name";
+            data.definition = "definition";
+            data.howtoremove = "howtoremove";
+            data.prevention = "prevention";
+
+            Window.WindowStyle winStyle = new Window.WindowStyle((BitmapFont)ResourceManager.getObjectFromResource("font"), Color.WHITE, new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("splash"))));
+            view = new AlmanacDataView("", winStyle, data);
+            view.setFillParent(true);
+            view.setPosition(0, 0);
+            stage.addActor(view);
+        }
+
+    }
+AlmanacDataView view;
+    AlmanacDialog dialog;
+    @Override
+    void draw(SpriteBatch batch) {
+        stage.draw();
+    }
+
+    @Override
+    void setDisabled(boolean disable)
+    {
+        if ( disable )
+        {
+        }
+        else
+        {
+        }
+    }
+
+    @Override
+    void update(float delta)
+    {
+        if ( animation.isScreenEnded() )
+        {
+            Utils.makeLog("screenEnded");
+        }
+        else
+            super.update(delta);
+    }
+
+
+}
+class PlayerSkillTreeState extends GameState
+{
+    PlayerSkillTreeState(java.util .List<GameState> iStates) {
+        super(iStates);
+    }
+    int points;
+    void setPoints(int iPoints)
+    {
+        points = iPoints;
+    }
     @Override
     public void clicked (InputEvent event, float x, float y) {
         selectedActor = event.getListenerActor();
@@ -716,7 +827,8 @@ class PlayerAlmanacState extends GameState
 
     }
     @Override
-    void draw(SpriteBatch batch) {
+    void draw(SpriteBatch batch)
+    {
         stage.draw();
     }
 
@@ -740,7 +852,5 @@ class PlayerAlmanacState extends GameState
         }
         else super.update(delta);
     }
-
-
 }
 

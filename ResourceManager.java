@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,11 @@ public class ResourceManager {
         resourcePool.add(new Resource("map1", new Texture(Utils.getFile("graphics/textures/map/map1.png"))));
 
 
+        resourcePool.add(new Resource("font", BitmapFontFactory.createdBitmapFrontFromFile(Utils.getFile("graphics/fonts/arial.ttf"), 32)));
+        resourcePool.add(new Resource("font16", BitmapFontFactory.createdBitmapFrontFromFile(Utils.getFile("graphics/fonts/arial.ttf"), 16)));
+        resourcePool.add(new Resource("selectedItemBackgroundAlmanac", new Texture(Utils.getFile("graphics/textures/userinterfaces/selectedItemBackgroundAlmanac.png"))));
+
+        resourcePool.add(new Resource("closeButton", new Texture(Utils.getFile("graphics/textures/userinterfaces/closeButton.png"))));
     }
 
     static Resource getResource(String name)

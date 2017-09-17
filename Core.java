@@ -237,10 +237,14 @@ class BitmapFontFactory
 {
 	static BitmapFont createdBitmapFrontFromFile(FileHandle file, int fontSize)
 	{
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(file);
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = fontSize;
-		BitmapFont font = generator.generateFont(parameter);
+		return createdBitmapFrontFromFile(file, parameter);
+	}
+	static BitmapFont createdBitmapFrontFromFile(FileHandle file, FreeTypeFontGenerator.FreeTypeFontParameter param)
+	{
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(file);
+		BitmapFont font = generator.generateFont(param);
 		generator.dispose();
 		return font;
 	}
@@ -429,7 +433,7 @@ EntityModel model = new EntityModel((Texture)ResourceManager.getObjectFromResour
 		entities = new ArrayList<Entity>();
 		//gameStates.add(new MenuState(gameStates));
 
-		gameStates.add(new PlayerProfileState(gameStates));
+		gameStates.add(new SplashState(gameStates));
 	}
 	List<Entity> entities;
 
@@ -479,7 +483,6 @@ EntityModel model = new EntityModel((Texture)ResourceManager.getObjectFromResour
 					for ( int b = 0; b < entities.size(); b++ )
 					{
 						Entity enemy = entities.get(b);
-						//Utils.makeLog(enemy.getAlignment() + " " + Float.toString(bullet.getAlignment()));
 						if ( enemy.getType() == ENTITYTYPE.VIRUS && Utils.isAligned(enemy.getAlignment(), bullet.getAlignment()) )
 						{
 							if ( Utils.has2DCollision(bullet.getSprite(), enemy.getSprite()) )
@@ -534,7 +537,6 @@ EntityModel model = new EntityModel((Texture)ResourceManager.getObjectFromResour
 		batch.setProjectionMatrix(worldCam.combined);
 		if (true)
 		{
-			//Utils.makeLog(Integer.toString(gameStates.size()));
 			for ( int a = 0; a < gameStates.size(); a++ )
 				if ( gameStates.get(a).isActiveState() )
 					gameStates.get(a).draw(batch);
