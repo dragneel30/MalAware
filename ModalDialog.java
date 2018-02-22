@@ -1,249 +1,1 @@
-package com.mygdx.game;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
-
-import java.awt.Image;
-
-/**
- * Created by Lorence on 8/12/2017.
- */
-
-
-public class ModalDialog extends Dialog {
-
-    ModalDialog(String title, Skin skin, String windowStyleName)
-    {
-        super(title, skin, windowStyleName);
-        BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
-        Sprite buttonSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));
-        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(buttonSprite),null,null,font);
-
-        success = new ImageTextButton("Success", style);
-        abort = new ImageTextButton("Abort", style);
-        int w = ((int)getWidth()) / 2;
-        success.setSize(w, 32);
-        abort.setSize(w, 32);
-        abort.setPosition(w, 0);
-
-        Label.LabelStyle lblstyle = new Label.LabelStyle(font, Color.WHITE);
-        label = new Label("", lblstyle);
-        label.setPosition(50,50);
-        button(success,DialogCode.SUCCESS);
-        button(abort,DialogCode.ABORT);
-
-        code = null;
-        text(label);
-    }
-    void setText(String text)
-    {
-        label.setText(text);
-    }
-    Label label;
-
-    DialogCode code;
-    void setDialogCode(DialogCode newCode) { code = newCode; }
-    DialogCode getCode() { return code; }
-    enum DialogCode
-    {
-        SUCCESS(1), ABORT(2);
-        int value;
-        DialogCode(int iValue) { value = iValue; }
-        int getValue() { return value; }
-    }
-    @Override
-    protected void result(Object object)
-    {
-
-        DialogCode resultCode = (DialogCode) object;
-        setDialogCode(resultCode);
-        remove();
-    }
-
-    ImageTextButton success;
-    ImageTextButton abort;
-}
-
-class ModalDialogExtended extends Dialog
-{
-    public ModalDialogExtended(String title, Skin skin, String windowStyleName) {
-        super(title, skin, windowStyleName);
-    }
-
-    enum DialogCode
-    {
-        SUCCESS(1), ABORT(2);
-        int value;
-        DialogCode(int iValue) { value = iValue; }
-        int getValue() { return value; }
-    }
-
-    DialogCode code;
-    void setDialogCode(DialogCode newCode) { code = newCode; }
-    DialogCode getCode() { return code; }
-    @Override
-    protected void result(Object object)
-    {
-        DialogCode resultCode = (DialogCode) object;
-        setDialogCode(resultCode);
-        remove();
-    }
-}
-
-class AlmanacDatas
-{
-    public AlmanacDatas()
-    {
-        datas = new java.util.ArrayList<AlmanacData>();
-    }
-
-    java.util.List<AlmanacData> datas;
-}
-class AlmanacData
-{
-    String cause;
-    String definition;
-    String name;
-    String howtoremove;
-    String prevention;
-}
-
-class AlmanacDataView extends Window
-{
-    public AlmanacDataView(String title, WindowStyle style, AlmanacData data) {
-        super(title, style);
-        ImageButton.ImageButtonStyle ibstyle = new ImageButton.ImageButtonStyle(new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("closeButton"))), null, null, null, null, null);
-        ImageButton closeButtonImage = new ImageButton(ibstyle);
-
-        closeButtonImage.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                remove();
-            }
-        });
-
-        Label.LabelStyle lblStyle = new Label.LabelStyle(style.titleFont,Color.WHITE);
-
-        Label cause = new Label(data.cause, lblStyle);
-        Label definition = new Label(data.definition, lblStyle);
-        Label name = new Label(data.name, lblStyle);
-        Label howtoremove = new Label(data.howtoremove, lblStyle);
-        Label prevention = new Label(data.prevention, lblStyle);
-
-        left().top();
-        add().expandX();
-        add(closeButtonImage);
-        row();
-        add(new Label("Name: ", lblStyle)).left();
-        row();
-        add(name).left();
-        row();
-        add(new Label("Cause: ", lblStyle)).left();
-        row();
-        add(cause).left();
-        row();
-        add(new Label("Prevention: ", lblStyle)).left();
-        row();
-        add(prevention).left();
-        row();
-        add(new Label("How to remove: ", lblStyle)).left();
-        row();
-        add(howtoremove).left();
-    }
-}
-
-class AlmanacDialog extends ModalDialogExtended
-{
-    AlmanacDialog(String title, Skin skin, String windowStyleName) {
-        super(title, skin, windowStyleName);
-
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("closeButton"))), null, null, null, null, null);
-        closeButtonImage = new ImageButton(style);
-        Table inner = new Table();
-        ScrollPane scrollPane = new ScrollPane(inner);
-
-        BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);
-        Label.LabelStyle lblstyle = new Label.LabelStyle(font, Color.WHITE);
-        label = new Label("ENter shit", lblstyle);
-        Label label1 = new Label("sdfasdf", lblstyle);
-        Label label2 = new Label("sdfasdf", lblstyle);
-        Label label3 = new Label("sdfasdf", lblstyle);
-        Label label4 = new Label("sdfasdf", lblstyle);
-        Label label5 = new Label("sdfasdf", lblstyle);
-        Label label6 = new Label("sdfasdf", lblstyle);
-        Label label7 = new Label("sdfasdf", lblstyle);
-        Label label8 = new Label("sdfasdf", lblstyle);
-        Label label9 = new Label("sdfasdf", lblstyle);
-        Label label10 = new Label("sdfasdf", lblstyle);
-        Label label11 = new Label("sdfasdf", lblstyle);
-
-        inner.add(label);
-        inner.row();
-        inner.add(label1);
-        inner.row();
-        inner.add(label2);
-        inner.row();
-        inner.add(label3);
-        inner.row();
-        inner.add(label4);
-        inner.row();
-        inner.add(label5);
-        inner.row();
-        inner.add(label6);
-        inner.row();
-        inner.add(label7);
-        inner.row();
-        inner.add(label8);
-        inner.row();
-        inner.add(label9);
-        inner.row();
-        inner.add(label10);
-        inner.row();
-        inner.add(label11);
-        inner.row();
-        inner.add(label10);
-        inner.row();
-        inner.add(label11);
-        inner.row();
-        inner.add(label10);
-        inner.row();
-        inner.add(label11);
-        Table content = getContentTable();
-getContentTable().setDebug(true);
-        getContentTable().add(scrollPane);
-       // content.setDebug(true);
-        //content.add(scrollPane);
-        //content.setFillParent(true);
-        //content.add().expandX();
-        button(closeButtonImage, 1);
-    }
-
-    Label label;
-
-    ImageButton closeButtonImage;
-
-    @Override
-    protected void result(Object object)
-    {
-        Utils.makeLog("testt");/*
-        DialogCode resultCode = (DialogCode) object;
-        setDialogCode(resultCode);
-        remove();*/
-    }
-}
+package com.mygdx.game;import com.badlogic.gdx.Gdx;import com.badlogic.gdx.graphics.Color;import com.badlogic.gdx.graphics.Texture;import com.badlogic.gdx.graphics.g2d.BitmapFont;import com.badlogic.gdx.graphics.g2d.GlyphLayout;import com.badlogic.gdx.graphics.g2d.Sprite;import com.badlogic.gdx.scenes.scene2d.Actor;import com.badlogic.gdx.scenes.scene2d.InputEvent;import com.badlogic.gdx.scenes.scene2d.ui.Dialog;import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;import com.badlogic.gdx.scenes.scene2d.ui.Label;import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;import com.badlogic.gdx.scenes.scene2d.ui.Skin;import com.badlogic.gdx.scenes.scene2d.ui.Table;import com.badlogic.gdx.scenes.scene2d.ui.Window;import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;import com.google.gson.annotations.SerializedName;import java.awt.Image;/** * Created by Lorence on 8/12/2017. */public class ModalDialog extends Dialog {    ModalDialog(String title, Skin skin, String windowStyleName)    {        super(title, skin, windowStyleName);        BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);        Sprite buttonSprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(buttonSprite),null,null,font);        GlyphLayout layout = new GlyphLayout(font, "SUCCESS");        success = new ImageTextButton("Success", style);        abort = new ImageTextButton("Abort", style);        int w = ((int)getWidth());        success.setSize(w, layout.height + 48);        abort.setSize(w, 32);        abort.setPosition(w, 0);        Label.LabelStyle lblstyle = new Label.LabelStyle(font, Color.WHITE);        label = new Label("", lblstyle);        label.setPosition(50,50);        button(success,DialogCode.SUCCESS);        code = null;        text(label);    }    void setText(String text)    {        label.setText(text);    }    Label label;    DialogCode code;    void setDialogCode(DialogCode newCode) { code = newCode; }    DialogCode getCode() { return code; }    enum DialogCode    {        SUCCESS(1), ABORT(2);        int value;        DialogCode(int iValue) { value = iValue; }        int getValue() { return value; }    }    @Override    protected void result(Object object)    {        DialogCode resultCode = (DialogCode) object;        setDialogCode(resultCode);        remove();    }    ImageTextButton success;    ImageTextButton abort;}class ModalDialogExtended extends Dialog{    public ModalDialogExtended(String title, Skin skin, String windowStyleName) {        super(title, skin, windowStyleName);    }    enum DialogCode    {        SUCCESS(1), ABORT(2);        int value;        DialogCode(int iValue) { value = iValue; }        int getValue() { return value; }    }    DialogCode code;    void setDialogCode(DialogCode newCode) { code = newCode; }    DialogCode getCode() { return code; }    @Override    protected void result(Object object)    {        DialogCode resultCode = (DialogCode) object;        setDialogCode(resultCode);        remove();    }}class AlmanacDatas{    public AlmanacDatas()    {        datas = new java.util.ArrayList<AlmanacData>();    }    @SerializedName("datas")    java.util.List<AlmanacData> datas;    AlmanacData find(String name)    {        for ( int a = 0; a < datas.size(); a++ )        {            if ( datas.get(a).name.equals(name) ) return datas.get(a);        }        return new AlmanacData();    }}class AlmanacData{    public AlmanacData()    {        cause = "no data found";        definition = "no data found";        name = "no data found";        howtoremove = "no data found";        prevention = "no data found";    }    String cause;    String definition;    String name;    String howtoremove;    String prevention;}class PauseView extends Window{    public PauseView(String title, WindowStyle style) {        super(title, style);        Sprite sprite = new Sprite((Texture) ResourceManager.getObjectFromResource("button"));        BitmapFont font = (BitmapFont) ResourceManager.getObjectFromResource("font");        ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle(new SpriteDrawable(sprite), null, null, font);        quit = new ImageTextButton("QUIT", buttonStyle);        resume = new ImageTextButton("RESUME", buttonStyle);        code = null;        add(resume);        row();        add(quit);        setFillParent(true);        resume.addListener(new ClickListener()        {            @Override            public void clicked(InputEvent event, float x, float y) {                code = ClickedCode.RESUME;                remove();            }        });        quit.addListener(new ClickListener()        {            @Override            public void clicked(InputEvent event, float x, float y) {                code = ClickedCode.QUIT;                remove();            }        });    }    ClickedCode code;    enum ClickedCode    {        RESUME(1), QUIT(2);        int value;        public int getValue() { return value; }        ClickedCode(int val)        {            value = val;        }    }    ImageTextButton quit;    ImageTextButton resume;}class AlmanacDataView extends Window{    public AlmanacDataView(String title, WindowStyle style, AlmanacData data) {        super(title, style);        ImageButton.ImageButtonStyle ibstyle = new ImageButton.ImageButtonStyle(new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("closeButton"))), null, null, null, null, null);        ImageButton closeButtonImage = new ImageButton(ibstyle);        //closeButtonImage.setSize(32, 32);        closeButtonImage.addListener(new ClickListener()        {            @Override            public void clicked(InputEvent event, float x, float y) {                remove();            }        });        Label.LabelStyle lblStyle = new Label.LabelStyle(style.titleFont, Color.RED);        Label.LabelStyle labelStyle = new Label.LabelStyle(style.titleFont, Color.BLUE);        Table inner = new Table();        ScrollPane scrollPane = new ScrollPane(inner);        SpriteDrawable bg = new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("almanacBackground")));        //inner.background(bg);        background(bg);        Label cause = new Label(data.cause, lblStyle);        Label definition = new Label(data.definition, lblStyle);        Label name = new Label(data.name, lblStyle);        Label howtoremove = new Label(data.howtoremove, lblStyle);        Label prevention = new Label(data.prevention, lblStyle);        cause.setWrap(true);        definition.setWrap(true);        name.setWrap(true);        howtoremove.setWrap(true);        prevention.setWrap(true);        left().top();        add(closeButtonImage).right().row();        setFillParent(true);        inner.row();        inner.add(new Label("Name: ", labelStyle)).left();        inner.row();        inner.add(name).left().width(GAME_GLOBALS.DESKTOP_SCREEN_WIDTH);        inner.row();        inner.add(new Label("Cause: ", labelStyle)).left();        inner.row();        inner.add(cause).left().width(GAME_GLOBALS.DESKTOP_SCREEN_WIDTH);        inner.row();        inner.add(new Label("Prevention: ", labelStyle)).left();        inner.row();        inner.add(prevention).left().width(GAME_GLOBALS.DESKTOP_SCREEN_WIDTH);        inner.row();        inner.add(new Label("How to remove: ", labelStyle)).left();        inner.row();        inner.add(howtoremove).left().width(GAME_GLOBALS.DESKTOP_SCREEN_WIDTH);        inner.row();        add(scrollPane);    }}class AlmanacDialog extends ModalDialogExtended{    AlmanacDialog(String title, Skin skin, String windowStyleName) {        super(title, skin, windowStyleName);        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(new SpriteDrawable(new Sprite((Texture)ResourceManager.getObjectFromResource("closeButton"))), null, null, null, null, null);        closeButtonImage = new ImageButton(style);        Table inner = new Table();        ScrollPane scrollPane = new ScrollPane(inner);        BitmapFont font = BitmapFontFactory.createdBitmapFrontFromFile(Gdx.files.internal("graphics/fonts/arial.ttf"), 32);        Label.LabelStyle lblstyle = new Label.LabelStyle(font, Color.WHITE);        label = new Label("ENter shit", lblstyle);        Label label1 = new Label("sdfasdf", lblstyle);        Label label2 = new Label("sdfasdf", lblstyle);        Label label3 = new Label("sdfasdf", lblstyle);        Label label4 = new Label("sdfasdf", lblstyle);        Label label5 = new Label("sdfasdf", lblstyle);        Label label6 = new Label("sdfasdf", lblstyle);        Label label7 = new Label("sdfasdf", lblstyle);        Label label8 = new Label("sdfasdf", lblstyle);        Label label9 = new Label("sdfasdf", lblstyle);        Label label10 = new Label("sdfasdf", lblstyle);        Label label11 = new Label("sdfasdf", lblstyle);        inner.add(label);        inner.row();        inner.add(label1);        inner.row();        inner.add(label2);        inner.row();        inner.add(label3);        inner.row();        inner.add(label4);        inner.row();        inner.add(label5);        inner.row();        inner.add(label6);        inner.row();        inner.add(label7);        inner.row();        inner.add(label8);        inner.row();        inner.add(label9);        inner.row();        inner.add(label10);        inner.row();        inner.add(label11);        inner.row();        inner.add(label10);        inner.row();        inner.add(label11);        inner.row();        inner.add(label10);        inner.row();        inner.add(label11);        Table content = getContentTable();        getContentTable().setDebug(true);        getContentTable().add(scrollPane);        // content.setDebug(true);        //content.add(scrollPane);        //content.setFillParent(true);        //content.add().expandX();        button(closeButtonImage, 1);    }    Label label;    ImageButton closeButtonImage;    @Override    protected void result(Object object)    {        Utils.makeLog("testt");/*        DialogCode resultCode = (DialogCode) object;        setDialogCode(resultCode);        remove();*/    }}

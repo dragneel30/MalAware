@@ -56,12 +56,13 @@ public class Tower extends Creature {
             bullets.get(a).draw(batch);
         }
     }
+
     void fire()
     {
         Bullet newBullet = new Bullet(bullet);
+        newBullet.damage = getModel().damage;
         newBullet.getSprite().setPosition(getSprite().getX(), getSprite().getY());
         bullets.add(newBullet);
-
     }
 
     List<Bullet> getBullets() {

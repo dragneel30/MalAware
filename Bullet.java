@@ -24,11 +24,11 @@ public class Bullet extends MoveableCreature {
         Utils.makeLog("bullet copy created");
         Utils.makeLog(Float.toString(other.getAlignment()));
     }
-
-   @Override
-   float getAlignment()
-   {
-       return (float)((int) getSprite().getY());
-   }
+    int damage;
+    @Override
+    float getAlignment()
+    {
+        return (float)((int) getSprite().getY());
+    }
 
 }

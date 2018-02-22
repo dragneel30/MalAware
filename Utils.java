@@ -88,19 +88,22 @@ public class Utils {
 
     static <T> T getFromJson(String file, Class<T> type)
     {
-        try
-        {
-            Reader reader = new FileReader(file);
+        //try
+        //{
+            //Reader reader = new FileReader(file);
+           // reader.
             Gson gson = new Gson();
             Utils.makeLog(file);
-            return gson.fromJson(reader, type);
-        }
+
+            return gson.fromJson(Gdx.files.internal(file).readString(), type);
+        /*}
         catch(FileNotFoundException e)
         {
             Utils.makeLog("cant do it");
             Utils.makeLog(e.getMessage());
         }
-        return null;
+        */
+       // return null;
     }
 
     static <T> T deserialize(String file, Class<T> type)
@@ -115,7 +118,7 @@ public class Utils {
     static void writeFile(String txt) {
 
         try {
-            FileWriter f = new FileWriter(new File("savestate.txt"));
+            FileWriter f = new FileWriter(new File("savestate.json"));
             f.append(txt);
             f.flush();
         } catch (IOException e) {

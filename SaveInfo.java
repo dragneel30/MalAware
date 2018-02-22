@@ -14,8 +14,17 @@ public class SaveInfo {
     SaveInfo(String iName) {
 
         name = iName;
+        leaked = new ArrayList<leakedvirus>();
+        almanac = new viruses();
     }
     String name;
+    public int skilltree = 1;
+    public int stage = 1;
+    public int stage1star = 0;
+    public int stage2star = 0;
+    public int stage3star = 0;
+    java.util.List<leakedvirus> leaked;
+    viruses almanac;
 }
 
 
@@ -24,6 +33,7 @@ class SaveList
     SaveList()
     {
         list = new ArrayList<SaveInfo>();
+
     }
     @SerializedName("saves") List<SaveInfo> list;
 
@@ -47,4 +57,22 @@ class SaveList
         }
         return false;
     }
+
+}
+
+
+
+class leakedvirus
+{
+    public leakedvirus(String n, int s)
+    {
+        name = n;
+        stage = s;
+    }
+    String name;
+    int stage;
+}
+class viruses
+{
+    java.util.List<String> almanaccontent = new ArrayList<String>();
 }

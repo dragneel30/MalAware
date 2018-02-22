@@ -35,7 +35,7 @@ public class MoveableCreature extends Creature {
         if (!Utils.isObjectNull(getAnimation()))
         {
             getAnimation().setCurrentAnimation(dir.getValue());
-            animate();
+            animate(delta);
         }
 
     }

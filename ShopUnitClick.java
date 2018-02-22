@@ -16,11 +16,19 @@ public class ShopUnitClick extends ClickListener {
     @Override
     public void clicked (InputEvent event, float x, float y)
     {
-        currentClickedUnit = owner;
+
+        if ( currentClickedUnit == owner ) {
+            currentClickedUnit = null;
+        }
+        else {
+
+            currentClickedUnit = owner;
+        }
     }
     private static ShopUnit currentClickedUnit;
     public static ShopUnit getCurrentClickedUnit() { return currentClickedUnit; }
     private ShopUnit owner;
+    public ShopUnit getOwner() { return owner; }
     static void resetClick() { currentClickedUnit = null; }
 
 }

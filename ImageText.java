@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -12,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
+
+import javax.swing.Box;
 
 /**
  * Created by Lorence on 9/14/2017.
@@ -27,7 +30,6 @@ public class ImageText {
         image.setSize(width, height);
 
         table = new Table();
-        filler = new Table();
 
         if (lblPos == DIRECTION.RIGHT) {
             table.add(image);
@@ -41,7 +43,7 @@ public class ImageText {
             table.add(label);
         } else if (lblPos == DIRECTION.UP) {
             table.add(label);
-            table.add();
+            table.row();
             table.add(image);
         }
 
@@ -54,8 +56,7 @@ public class ImageText {
         return filler;
     }
 
-    public String getText()
-    {
+    public String getText() {
         return label.getText().toString();
     }
 
@@ -63,9 +64,44 @@ public class ImageText {
         return table;
     }
 
-    public void addTo(Table container)
-    {
+    public Cell<Table> addWithFillerTo(Table container, DIRECTION fillerPosition) {
 
+        if ( fillerPosition == DIRECTION.LEFT )
+        {
+            addTo(container).fill();
+            return container.add(filler).expandX().fill();
+
+        }
+        else if ( fillerPosition == DIRECTION.DOWN )
+        {
+            addTo(container).fill();
+            container.row();
+            return container.add(filler).fill();
+        }
+        else if ( fillerPosition == DIRECTION.RIGHT )
+        {
+            container.add(filler).expandX().fill();
+            return addTo(container).fill();
+        }
+        else if ( fillerPosition == DIRECTION.UP )
+        {
+            container.add(filler).expandY().fill();
+            container.row();
+            return addTo(container).fill();
+        }
+
+        return null;
+    }
+
+    public Cell<Table> addTo(Table container)
+    {
+        return container.add(table);
+    }
+
+    public void addClickListener(ClickListener listener)
+    {
+        table.addListener(listener);
+        filler.addListener(listener);
     }
 
     public void setBackgroundWhenClicked(SpriteDrawable iBackgroundWhenClicked)
@@ -79,21 +115,30 @@ public class ImageText {
             if ( !Utils.isObjectNull(filler) ) {
 
                 filler.setBackground(backgroundWhenClicked);
+
             }
             table.setBackground(backgroundWhenClicked);
+
+            Utils.makeLog("shaded");
         }
         else
         {
             if ( !Utils.isObjectNull(filler) )
             {
+                filler.setBackground((SpriteDrawable)null);
                 /////////// remove background filler
             }
+            table.setBackground((SpriteDrawable)null);
             // remove background table
         }
 
     }
 
 
+    public boolean isEqual(Actor actor)
+    {
+        return actor == table || actor == filler;
+    }
 
     public boolean isSelected()
     {

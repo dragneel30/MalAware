@@ -19,6 +19,12 @@ public class EntityModel {
         return texture;
     }
 
+    int money;
+    int damage;
+
+    int getDamage() { return damage; }
+    int getMoney() { return money; }
+
 
     String getName() {
         return name;

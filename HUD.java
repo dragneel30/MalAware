@@ -35,6 +35,14 @@ public class HUD implements Drawable {
         stage.draw();
     }
 
+    void update(float delta)
+    {
+        for ( int a = 0; a < shopUnits.size(); a++ )
+        {
+            shopUnits.get(a).update(delta);
+
+        }
+    }
     List<ShopUnit> shopUnits;
 
 

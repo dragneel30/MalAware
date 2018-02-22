@@ -52,12 +52,14 @@ public abstract class Entity implements Drawable {
         {
             sprite.setPosition(iPosition.x, iPosition.y);
             sprite.setSize(iSize.x, iSize.y);
+            if ( iType == ENTITYTYPE.VIRUS || iType == ENTITYTYPE.TOWER )
+            sprite.setSize((float)0.8, (float)0.8);
         }
 
         setAnimation(iAnimation);
 
         if ( !Utils.isObjectNull(iAnimation) ) {
-            animate();
+            animate(sec_per_anim);
         }
 
 
@@ -67,6 +69,8 @@ public abstract class Entity implements Drawable {
         return new Vector2(getSprite().getX(), getSprite().getY());
     }
 
+    int hp;
+    int getHp() { return hp; }
     protected double speed;
     Sprite getSprite() { return sprite; }
     double getSpeed() { return speed; }
@@ -77,15 +81,23 @@ public abstract class Entity implements Drawable {
 
     public void draw(SpriteBatch batch)
     {
-        sprite.draw(batch);
+        if (isVisible()) sprite.draw(batch);
     }
     abstract void update(float delta);
-    void animate()
-    {
-        Rectangle bound = animation.getNextAnimation();
-        TextureRegion reg = new TextureRegion(model.getTexture(), (int)bound.getX(), (int)bound.getY(), (int)bound.getWidth(), (int)bound.getHeight());
 
-        sprite.setRegion(reg);
+
+    float sec_per_anim = (float)0.5;
+    float accumulated = 0;
+    void animate(float delta)
+    {
+        accumulated += delta;
+        if ( accumulated >= sec_per_anim ) {
+            Rectangle bound = animation.getNextAnimation();
+            TextureRegion reg = new TextureRegion(model.getTexture(), (int) bound.getX(), (int) bound.getY(), (int) bound.getWidth(), (int) bound.getHeight());
+
+            sprite.setRegion(reg);
+            accumulated = 0;
+        }
 
     }
 
@@ -96,6 +108,7 @@ public abstract class Entity implements Drawable {
         model = newModel;
         if ( !Utils.isObjectNull(newModel) )
         {
+            Utils.makeLog("testsetsetsetset");
             sprite = new Sprite(newModel.getTexture());
             sprite.setSize(1, 1);
             return true;
